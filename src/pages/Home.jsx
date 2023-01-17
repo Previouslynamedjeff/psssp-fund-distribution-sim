@@ -5,40 +5,36 @@ import { makePerson } from "../person";
 
 function Home() {
   const [budget, setBudget] = useState(300000);
-  const [people, setPeople] = useState([]);
-  const [buckets, setBuckets] = useState(Array.from({ length: 30 }, () => 0));
+  const [people, setPeople] = useState(() =>
+    Array.from({ length: 30 }, (v, k) => ({
+      ...makePerson(
+        `Person ${k + 1}`,
+        Math.ceil(Math.random() * 20 + 13),
+        Math.ceil(Math.random() * 60000 + 40000),
+        Math.floor(Math.random() * 5),
+        programs[Math.floor(programs.length * Math.random())],
+        (Math.random() * 2 + 2.2).toFixed(2)
+      ),
+      key: k,
+    }))
+  );
+  const [buckets, setBuckets] = useState(() =>
+    Array.from({ length: 30 }, () => 0)
+  );
   const [percent, setPercent] = useState(0);
   const maxPerPerson = 53000;
-
-  if (people.length === 0) {
-    setPeople(
-      Array.from({ length: 30 }, (v, k) => ({
-        ...makePerson(
-          `Person ${k + 1}`,
-          Math.ceil(Math.random() * 20 + 13),
-          Math.ceil(Math.random() * 60000 + 40000),
-          Math.floor(Math.random() * 5),
-          programs[Math.floor(programs.length * Math.random())],
-          (Math.random() * 2 + 2.2).toFixed(2)
-        ),
-        key: k,
-      }))
-    );
-  }
 
   const cards = people.map((v, k) => {
     return (
       <Card
         key={v.key}
         person={v}
-        handleClick={(e) => {
-          const rect = e.target.getBoundingClientRect();
-          const y = rect.bottom - e.clientY;
-          const h = Math.abs(rect.top - rect.bottom);
-          setBuckets(
-            buckets.map((vv, kk) => (kk === k ? (maxPerPerson * y) / h : vv))
+        handleClick={(frac) => {
+          const tmp = buckets.map((vv, kk) =>
+            kk === k ? maxPerPerson * frac : vv
           );
-          setPercent((buckets.reduce((acc, cur) => acc + cur) * 100) / budget);
+          setBuckets(tmp);
+          setPercent((tmp.reduce((acc, cur) => acc + cur) * 100) / budget);
         }}
       />
     );
@@ -47,7 +43,7 @@ function Home() {
   return (
     <div className="bg-neutral-100 w-screen p-8">
       <div className="mb-12">
-        <h1 className="text-4xl mb-6  ">
+        <h1 className="text-4xl mb-6">
           Post-Secondary Student Support Program Planner
         </h1>
         <span className="text-3xl ">Budget: $</span>
@@ -55,7 +51,12 @@ function Home() {
           type="number"
           className="text-3xl focus:bg-white bg-neutral-100 focus:outline-none py-2 pr-2 rounded-lg w-48"
           value={budget}
-          onChange={(e) => setBudget(e.target.value)}
+          onChange={(e) => {
+            setPercent(
+              (buckets.reduce((acc, cur) => acc + cur) * 100) / e.target.value
+            );
+            setBudget(e.target.value);
+          }}
         />
         <h3>Max per person: ${maxPerPerson.toLocaleString("en-US")}</h3>
       </div>

@@ -12,6 +12,7 @@ function Icon() {
 
 function Card({ person, handleClick }) {
   const [height, setHeight] = useState(0);
+  const cardRef = useRef();
   const fillRef = useRef();
 
   useEffect(() => {
@@ -22,13 +23,14 @@ function Card({ person, handleClick }) {
     <div
       className="drop-shadow-sm rounded-xl px-4 py-6 bg-white hover:drop-shadow-lg transition-all duration-75 flex flex-col w-72 items-center select-none"
       onClick={(e) => {
-        handleClick(e);
-
-        const rect = e.target.getBoundingClientRect();
-        setHeight(rect.bottom - e.clientY);
+        const rect = cardRef.current.getBoundingClientRect();
+        const y = rect.bottom - e.clientY + 32;
+        const h = rect.bottom - rect.top;
+        handleClick(y / h);
+        setHeight(y);
       }}
     >
-      <div className="z-30 flex flex-col items-center">
+      <div className="z-30 flex flex-col items-center" ref={cardRef}>
         <Icon />
         <h2 className="text-lg mt-3 font-semibold">{person.name}</h2>
         <p>Age: {person.age}</p>

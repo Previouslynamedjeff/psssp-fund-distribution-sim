@@ -1,15 +1,18 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function Bar({ percent }) {
   const fillRef = useRef();
+  const [fillColor, setFillColor] = useState("green-300");
+
   useEffect(() => {
     fillRef.current.style.height = percent + "%";
-    console.log(fillRef.current.style.height);
 
     if (percent > 100) {
-      fillRef.current.classList += " bg-red-300";
+      fillRef.current.classList.add("bg-red-300");
+      fillRef.current.classList.remove("bg-green-300");
     } else {
       fillRef.current.classList.remove("bg-red-300");
+      fillRef.current.classList.add("bg-green-300");
     }
   }, [percent]);
 
